@@ -1,0 +1,26 @@
+<html>
+  <body>
+    <img id="live" />
+    <button onclick="refresh()">Refresh</button>
+    <script>
+      async function start() {
+        const response = await fetch('api/start?width=500&height=500', {
+          method: 'GET',
+        })
+        updateImage()
+      }
+
+      async function updateImage() {
+        const response = await fetch('api/render')
+        const pixels = await response.text()
+        const liveImg = document.getElementById('live')
+        liveImg.src = pixels
+      }
+
+      function refresh() {
+        updateImage()
+      }
+      start()
+    </script>
+  </body>
+</html>
