@@ -1,24 +1,40 @@
 <html>
   <body>
-    <img id="live" />
     <button onclick="refresh()">Refresh</button>
+    <button onclick="stop()">Stop</button>
+
+    <img id="live" />
+    <img id="source" />
     <script>
+      let isRunning = false
       async function start() {
         const response = await fetch('api/start?width=500&height=500', {
           method: 'GET',
         })
-        updateImage()
+        window.requestAnimationFrame(() => updateImage('api/render', 'live'))
+
+        updateImage('api/source', 'source')
+        // isRunning = true
       }
 
-      async function updateImage() {
-        const response = await fetch('api/render')
+      async function stop() {
+        await fetch('/api/stop')
+        isRunning = false
+        console.log('Stopped')
+      }
+
+      async function updateImage(url, id) {
+        const response = await fetch(url)
         const pixels = await response.text()
-        const liveImg = document.getElementById('live')
-        liveImg.src = pixels
+        if (pixels) {
+          const liveImg = document.getElementById(id)
+          liveImg.src = pixels
+        }
+        if (isRunning) window.requestAnimationFrame(updateImage)
       }
 
       function refresh() {
-        updateImage()
+        updateImage('api/render', 'live')
       }
       start()
     </script>

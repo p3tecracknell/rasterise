@@ -20,6 +20,7 @@
   "dependencies": {
     "canvas": "^2.6.1",
     "express": "^4.17.1",
+    "node-gameloop": "^0.1.4",
     "rasterise-triangle": "0.0.6"
   }
 }
