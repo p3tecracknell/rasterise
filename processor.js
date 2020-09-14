@@ -1,19 +1,21 @@
 const gameloop = require('node-gameloop')
 const fullCanvas = require('./full-canvas')
 
+const NUM_TRIANGLES = 1
+
 class Processor {
+  runningId = null
+
+  siCanvas = null
+  siCtx = null
+
+  bestCanvas = null
+  candidateCanvas = null
+
   constructor(width, height, srcImagePath) {
     this.width = parseInt(width)
     this.height = parseInt(height)
     this.srcImagePath = srcImagePath
-
-    this.runningId = null
-
-    this.siCanvas = null
-    this.siCtx = null
-
-    this.bestCanvas = null
-    this.candidateCanvas = null
   }
 
   async start() {
@@ -22,6 +24,11 @@ class Processor {
 
     this.bestCanvas = new fullCanvas(this.width, this.height)
     this.candidateCanvas = new fullCanvas(this.width, this.height)
+
+    this.bestCanvas.initialiseRandomTriangles(NUM_TRIANGLES)
+    this.bestCanvas.render()
+
+    this.candidateCanvas.triangles = [...this.bestCanvas.triangles]
 
     this.runningId = gameloop.setGameLoop(() => this.loop.call(this), 100)
   }
@@ -32,25 +39,39 @@ class Processor {
   }
 
   loop() {
-    this.candidateCanvas.triangles = [
-      {
-        points: [
-          { x: 0, y: 0 },
-          { x: Math.random() * 250, y: 50 },
-          { x: 5, y: 50 },
-        ],
-        color: [255, 0, 0, 1],
-      },
-      {
-        points: [
-          { x: 50, y: 200 },
-          { x: Math.random() * 250, y: 250 },
-          { x: 25, y: 250 },
-        ],
-        color: [255, 255, 1, 1],
-      },
-    ]
-    this.candidateCanvas.render()
+    //this.candidateCanvas.triangles = [...this.bestCanvas.triangles]
+    //this.bestCanvas.render()
+    const index = randomNumber(NUM_TRIANGLES)
+    const triangleToChange = this.candidateCanvas.triangles[index]
+    const strategy = randomNumber(4)
+
+    if (strategy === 0) {
+      // Triangle X
+      const pointIndex = randomNumber(3)
+      triangleToChange.points[pointIndex].x = randomNumber(this.width)
+    } else if (strategy === 1) {
+      // Triangle Y
+      const pointIndex = randomNumber(3)
+      triangleToChange.points[pointIndex].y = randomNumber(this.height)
+    } else if (strategy === 2) {
+      // Colour RGB
+      const colourIndex = randomNumber(3)
+      triangleToChange.color[colourIndex] = randomNumber(255)
+    } else if (strategy === 3) {
+      triangleToChange.color[3] = Math.random()
+    }
+
+    const isBetter = true
+    if (isBetter) {
+      this.bestCanvas.triangles[index] = {
+        ...this.candidateCanvas.triangles[index],
+      }
+      this.bestCanvas.render()
+    } else {
+      this.candidateCanvas.triangles[index] = {
+        ...this.bestCanvas.triangles[index],
+      }
+    }
   }
 
   getSourceImage() {
@@ -58,8 +79,16 @@ class Processor {
   }
 
   getCurrentImage() {
-    return this.candidateCanvas.toDataURL()
+    return this.bestCanvas.toDataURL()
   }
+
+  getCurrentImageDef() {
+    return this.bestCanvas.triangles
+  }
+}
+
+function randomNumber(max) {
+  return Math.floor(Math.random() * max)
 }
 
 module.exports = Processor

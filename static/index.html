@@ -4,15 +4,21 @@
     <img id="source" />
     <button onclick="refresh()">Refresh</button>
     <button onclick="stop()">Stop</button>
+    <div id="def"></div>
     <script>
       let isRunning = false
+
+      const $live = document.getElementById('live')
+      const $source = document.getElementById('source')
+      const $def = document.getElementById('def')
+
       async function start() {
         const response = await fetch('api/start?width=500&height=500', {
           method: 'GET',
         })
-        window.requestAnimationFrame(() => updateImage('api/render', 'live'))
+        window.requestAnimationFrame(() => render())
 
-        updateImage('api/source', 'source')
+        updateImage('api/source', $source)
         // isRunning = true
       }
 
@@ -22,18 +28,26 @@
         console.log('Stopped')
       }
 
-      async function updateImage(url, id) {
+      async function updateImage(url, ref) {
         const response = await fetch(url)
         const pixels = await response.text()
         if (pixels) {
-          const liveImg = document.getElementById(id)
-          liveImg.src = pixels
+          ref.src = pixels
         }
         if (isRunning) window.requestAnimationFrame(updateImage)
       }
 
+      async function updateDef(url, ref) {
+        const response = await fetch(url)
+        const def = await response.text()
+        if (def) {
+          ref.innerHTML = def
+        }
+      }
+
       function refresh() {
-        updateImage('api/render', 'live')
+        updateImage('api/render', $live)
+        updateDef('api/def', $def)
       }
       start()
     </script>

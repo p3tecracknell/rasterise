@@ -28,6 +28,11 @@ app.get('/api/render', (req, res) => {
   res.send(pixels)
 })
 
+app.get('/api/def', (req, res) => {
+  const def = pcr.getCurrentImageDef()
+  res.send(JSON.stringify(def))
+})
+
 app.get('/api/source', (req, res) => {
   const pixels = pcr.getSourceImage()
   res.send(pixels)
