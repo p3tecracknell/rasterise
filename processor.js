@@ -1,6 +1,5 @@
-const { createCanvas, loadImage } = require('canvas')
-const rasterise = require('rasterise-triangle')
 const gameloop = require('node-gameloop')
+const fullCanvas = require('./full-canvas')
 
 class Processor {
   constructor(width, height, srcImagePath) {
@@ -14,25 +13,15 @@ class Processor {
     this.siCtx = null
 
     this.bestCanvas = null
-    this.bestCtx = null
-
     this.candidateCanvas = null
-    this.candidateCtx = null
   }
 
   async start() {
-    this.siCanvas = createCanvas(this.width, this.height)
-    this.siCtx = this.siCanvas.getContext('2d')
+    this.siCanvas = new fullCanvas(this.width, this.height)
+    await this.siCanvas.loadImage(this.srcImagePath)
 
-    const image = await loadImage(this.srcImagePath)
-    console.log(JSON.stringify(image))
-    this.siCtx.drawImage(image, 0, 0, image.width, image.height)
-
-    this.bestCanvas = createCanvas(this.width, this.height)
-    this.bestCtx = this.bestCanvas.getContext('2d')
-
-    this.candidateCanvas = createCanvas(this.width, this.height)
-    this.candidateCtx = this.bestCanvas.getContext('2d')
+    this.bestCanvas = new fullCanvas(this.width, this.height)
+    this.candidateCanvas = new fullCanvas(this.width, this.height)
 
     this.runningId = gameloop.setGameLoop(() => this.loop.call(this), 100)
   }
@@ -43,28 +32,25 @@ class Processor {
   }
 
   loop() {
-    this.candidateCtx.fillStyle = 'white'
-    this.candidateCtx.fillRect(0, 0, this.width, this.height)
-
-    const imgData = this.candidateCtx.getImageData(
-      0,
-      0,
-      this.width,
-      this.height
-    )
-    const data = imgData.data
-
-    var triangle = {
-      points: [
-        { x: 0, y: 0 },
-        { x: Math.random() * 250, y: 50 },
-        { x: 5, y: 50 },
-      ],
-      color: [255, 0, 0, 1],
-    }
-
-    rasterise.fillTriangle(triangle, data, this.width, this.height)
-    this.candidateCtx.putImageData(imgData, 0, 0)
+    this.candidateCanvas.triangles = [
+      {
+        points: [
+          { x: 0, y: 0 },
+          { x: Math.random() * 250, y: 50 },
+          { x: 5, y: 50 },
+        ],
+        color: [255, 0, 0, 1],
+      },
+      {
+        points: [
+          { x: 50, y: 200 },
+          { x: Math.random() * 250, y: 250 },
+          { x: 25, y: 250 },
+        ],
+        color: [255, 255, 1, 1],
+      },
+    ]
+    this.candidateCanvas.render()
   }
 
   getSourceImage() {
@@ -72,7 +58,7 @@ class Processor {
   }
 
   getCurrentImage() {
-    return this.bestCanvas.toDataURL()
+    return this.candidateCanvas.toDataURL()
   }
 }
 
