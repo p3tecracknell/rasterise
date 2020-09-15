@@ -1,7 +1,7 @@
 const gameloop = require('node-gameloop')
 const fullCanvas = require('./full-canvas')
 
-const NUM_TRIANGLES = 1
+const NUM_TRIANGLES = 50
 
 class Processor {
   runningId = null
@@ -19,6 +19,7 @@ class Processor {
   }
 
   async start() {
+    this.bestScore = Number.MAX_SAFE_INTEGER
     this.siCanvas = new fullCanvas(this.width, this.height)
     await this.siCanvas.loadImage(this.srcImagePath)
 
@@ -30,6 +31,8 @@ class Processor {
 
     this.candidateCanvas.triangles = [...this.bestCanvas.triangles]
 
+    this.count = 0
+
     this.runningId = gameloop.setGameLoop(() => this.loop.call(this), 100)
   }
 
@@ -39,6 +42,8 @@ class Processor {
   }
 
   loop() {
+    this.count++
+    if (this.count % 100 === 0) console.log(this.count)
     //this.candidateCanvas.triangles = [...this.bestCanvas.triangles]
     //this.bestCanvas.render()
     const index = randomNumber(NUM_TRIANGLES)
@@ -61,8 +66,14 @@ class Processor {
       triangleToChange.color[3] = Math.random()
     }
 
-    const isBetter = true
-    if (isBetter) {
+    this.candidateCanvas.render()
+    const newScore = this.calculateScore()
+
+    if (newScore < this.bestScore) {
+      // Better!
+      console.log({ newScore })
+      console.log(this.bestScore)
+      this.bestScore = newScore
       this.bestCanvas.triangles[index] = {
         ...this.candidateCanvas.triangles[index],
       }
@@ -72,6 +83,25 @@ class Processor {
         ...this.bestCanvas.triangles[index],
       }
     }
+  }
+
+  calculateScore() {
+    const existingImgData = this.siCanvas.getImageData().data
+    const candidateImgData = this.candidateCanvas.getImageData().data
+
+    let squares = 0
+    for (let i = 0; i < existingImgData.length; i += 4) {
+      squares +=
+        (existingImgData[i] - candidateImgData[i]) *
+        (existingImgData[i + 1] - candidateImgData[i + 1]) *
+        (existingImgData[i + 2] - candidateImgData[i + 2])
+    }
+
+    if (squares === 0) {
+      console.log('WHAT?!')
+    }
+
+    return Math.abs(squares)
   }
 
   getSourceImage() {

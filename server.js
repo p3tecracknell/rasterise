@@ -2,7 +2,7 @@
 
 const express = require('express')
 const Processor = require('./processor.js')
-const PORT = 8080
+const PORT = process.env.PORT || 8080
 
 const app = express()
 
@@ -11,8 +11,8 @@ app.use(express.static('static'))
 let pcr
 
 app.get('/api/start', (req, res) => {
-  const { width, height } = req.query
-  pcr = new Processor(width, height, 'static/img/mona.jpg')
+  const { width, height, image } = req.query
+  pcr = new Processor(width, height, 'static/img/' + image)
   pcr.start()
 
   res.send('ok')

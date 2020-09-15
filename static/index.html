@@ -3,7 +3,9 @@
     <img id="live" />
     <img id="source" />
     <button onclick="refresh()">Refresh</button>
+    <button onclick="start()">Start</button>
     <button onclick="stop()">Stop</button>
+
     <div id="def"></div>
     <script>
       let isRunning = false
@@ -13,13 +15,16 @@
       const $def = document.getElementById('def')
 
       async function start() {
-        const response = await fetch('api/start?width=500&height=500', {
-          method: 'GET',
-        })
-        window.requestAnimationFrame(() => render())
+        const response = await fetch(
+          'api/start?image=mona.png&width=395&height=395',
+          {
+            method: 'GET',
+          }
+        )
+        window.requestAnimationFrame(() => refresh())
 
         updateImage('api/source', $source)
-        // isRunning = true
+        isRunning = true
       }
 
       async function stop() {
@@ -47,9 +52,8 @@
 
       function refresh() {
         updateImage('api/render', $live)
-        updateDef('api/def', $def)
+        //updateDef('api/def', $def)
       }
-      start()
     </script>
   </body>
 </html>
