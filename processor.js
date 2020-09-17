@@ -144,6 +144,17 @@ class Processor {
     return Math.abs(squares)
   }
 
+  getStats() {
+    return {
+      runningId: this.runningId,
+      width: this.width,
+      height: this.height,
+      srcImagePath: this.srcImagePath,
+      count: this.count,
+      score: this.bestScore,
+    }
+  }
+
   getSourceImage() {
     return this.siCanvas.toDataURL()
   }
