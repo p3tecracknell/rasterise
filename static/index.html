@@ -21,10 +21,11 @@
             method: 'GET',
           }
         )
-        window.requestAnimationFrame(() => refresh())
-
         updateImage('api/source', $source)
+
         isRunning = true
+
+        refresh()
       }
 
       async function stop() {
@@ -39,7 +40,6 @@
         if (pixels) {
           ref.src = pixels
         }
-        //if (isRunning) window.requestAnimationFrame(updateImage)
       }
 
       async function updateDef(url, ref) {
@@ -52,8 +52,12 @@
 
       function refresh() {
         updateImage('api/render', $live)
-        //updateDef('api/def', $def)
+        updateDef('api/def', $def)
+
+        if (isRunning) window.setTimeout(refresh, 1000)
       }
+
+      start()
     </script>
   </body>
 </html>

@@ -1,7 +1,7 @@
 const gameloop = require('node-gameloop')
 const fullCanvas = require('./full-canvas')
 
-const NUM_TRIANGLES = 100
+const NUM_TRIANGLES = 20
 
 class Processor {
   runningId = null

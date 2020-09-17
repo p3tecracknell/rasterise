@@ -11,6 +11,8 @@ app.use(express.static('static'))
 let pcr
 
 app.get('/api/start', (req, res) => {
+  if (pcr) return res.status(400).send('Already started')
+
   const { width, height, image } = req.query
   pcr = new Processor(width, height, 'static/img/' + image)
   pcr.start()
@@ -19,21 +21,30 @@ app.get('/api/start', (req, res) => {
 })
 
 app.get('/api/stop', (req, res) => {
+  if (!pcr) return res.status(401).send('Not running')
+
   pcr.stop()
+  pcr = null
   res.send('ok')
 })
 
 app.get('/api/render', (req, res) => {
+  if (!pcr) return res.status(400).send('Not running')
+
   const pixels = pcr.getCurrentImage()
   res.send(pixels)
 })
 
 app.get('/api/def', (req, res) => {
+  if (!pcr) return res.status(400).send('Not running')
+
   const def = pcr.getCurrentImageDef()
   res.send(JSON.stringify(def))
 })
 
 app.get('/api/source', (req, res) => {
+  if (!pcr) return res.status(400).send('Not running')
+
   const pixels = pcr.getSourceImage()
   res.send(pixels)
 })
