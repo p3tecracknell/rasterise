@@ -129,21 +129,6 @@ class Processor {
     )
   }
 
-  calculateScore() {
-    const existingImgData = this.siCanvas.getImageData().data
-    const candidateImgData = this.candidateCanvas.getImageData().data
-
-    let squares = 0
-    for (let i = 0; i < existingImgData.length; i += 4) {
-      squares +=
-        (existingImgData[i] - candidateImgData[i]) *
-        (existingImgData[i + 1] - candidateImgData[i + 1]) *
-        (existingImgData[i + 2] - candidateImgData[i + 2])
-    }
-
-    return Math.abs(squares)
-  }
-
   getStats() {
     return {
       runningId: this.runningId,
