@@ -37,6 +37,7 @@ class fullCanvas {
   toDataURL = () => this.canvas.toDataURL()
 
   initialiseRandomTriangles(numberTriangles) {
+    this.triangles = []
     for (let i = 0; i < numberTriangles; i++) {
       this.triangles[i] = {
         points: [this.randomPoint(), this.randomPoint(), this.randomPoint()],

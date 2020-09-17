@@ -39,8 +39,8 @@ app.get('/api/def', (req, res) => {
   if (!pcr) return res.status(400).send('Not running')
 
   const score = pcr.getStats()
-  const def = pcr.getCurrentImageDef()
-  res.send(JSON.stringify({ score, def }))
+  //const def = pcr.getCurrentImageDef()
+  res.send(JSON.stringify(score, null, 2))
 })
 
 app.get('/api/source', (req, res) => {

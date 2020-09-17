@@ -6,7 +6,7 @@
     <button onclick="start()">Start</button>
     <button onclick="stop()">Stop</button>
 
-    <div id="def"></div>
+    <pre id="def"></pre>
     <script>
       let isRunning = false
 
@@ -54,7 +54,7 @@
         updateImage('api/render', $live)
         updateDef('api/def', $def)
 
-        //if (isRunning) window.setTimeout(refresh, 1000)
+        if (isRunning) window.setTimeout(refresh, 1000)
       }
 
       start()
