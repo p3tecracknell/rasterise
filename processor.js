@@ -1,7 +1,9 @@
 const gameloop = require('node-gameloop')
 const fullCanvas = require('./full-canvas')
+const imghash = require('imghash')
+const leven = require('leven')
 
-const NUM_TRIANGLES = 20
+const NUM_TRIANGLES = 200
 
 class Processor {
   runningId = null
@@ -20,14 +22,17 @@ class Processor {
 
   async start() {
     this.bestScore = Number.MAX_SAFE_INTEGER
+
     this.siCanvas = new fullCanvas(this.width, this.height)
     await this.siCanvas.loadImage(this.srcImagePath)
+    this.siHash = this.calculateHash(this.siCanvas)
 
     this.bestCanvas = new fullCanvas(this.width, this.height)
     this.candidateCanvas = new fullCanvas(this.width, this.height)
 
     this.bestCanvas.initialiseRandomTriangles(NUM_TRIANGLES)
     this.bestCanvas.render()
+    this.bestHash = this.calculateHash(this.bestCanvas)
 
     this.candidateCanvas.triangles = [...this.bestCanvas.triangles]
 
@@ -92,21 +97,36 @@ class Processor {
     }
 
     this.candidateCanvas.render()
-    const newScore = this.calculateScore()
+
+    const candidateHash = this.calculateHash(this.candidateCanvas)
+
+    const newScore = leven(this.siHash, candidateHash)
 
     if (newScore < this.bestScore) {
       // Better!
       console.log({ newScore, bestScore: this.bestScore, strategy, jitter })
       this.bestScore = newScore
+      this.bestHash = candidateHash
       this.bestCanvas.triangles[index] = {
         ...this.candidateCanvas.triangles[index],
       }
-      this.bestCanvas.render()
+      //this.bestCanvas.render()
     } else {
       this.candidateCanvas.triangles[index] = {
         ...this.bestCanvas.triangles[index],
       }
     }
+  }
+
+  calculateHash(canvas) {
+    return imghash.hashRaw(
+      {
+        width: this.width,
+        height: this.height,
+        data: canvas.getImageData().data,
+      },
+      100
+    )
   }
 
   calculateScore() {

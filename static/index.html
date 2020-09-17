@@ -16,7 +16,7 @@
 
       async function start() {
         const response = await fetch(
-          'api/start?image=mona.png&width=395&height=395',
+          'api/start?image=mona.png&width=400&height=400',
           {
             method: 'GET',
           }
@@ -54,7 +54,7 @@
         updateImage('api/render', $live)
         updateDef('api/def', $def)
 
-        if (isRunning) window.setTimeout(refresh, 1000)
+        //if (isRunning) window.setTimeout(refresh, 1000)
       }
 
       start()
